@@ -236,26 +236,5 @@ def analysis():
  
        return f"エラーが発生しました: {e}"
 
-import os
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-
-# 1. アプリとDBはブロックの外で定義する
-app = Flask(__name__)
-
-
-# 2. 接続文字列の変換(Render/Neon用)
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///spending_data.db')
-if database_url and database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
-
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///spending_data.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
 if __name__ == '__main__':
-   port = int(os.environ.get("PORT", 5000))
-   app.run(host="0.0.0.0", port=port, debug=False) # debug=Trueにする
+   app.run(host='0.0.0.0', port=5000, debug=True) # debug=Trueにする
