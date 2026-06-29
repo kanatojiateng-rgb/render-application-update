@@ -51,6 +51,7 @@ async function autoGenerateAndSave() {
     const btn = document.getElementById('calculateBtn');
     btn.disabled = true; // ボタンを無効化
     btn.innerText = "保存中...";
+    
     // 1. 年月の取得（これだけはユーザーが選択したものを使います）
     const dataValue = document.getElementById("monthSelector").value;
 
@@ -86,7 +87,9 @@ async function autoGenerateAndSave() {
             body: JSON.stringify(expenseData)
         });
 
-        if (response.ok) {
+        const result = await response.json();
+
+        if (response.ok && result.success) {
             console.log(dataValue + "の保存成功");
             alert(dataValue + " 分のデータを自動生成して保存しました！");
 
@@ -94,7 +97,15 @@ async function autoGenerateAndSave() {
             if (typeof checkAndEnableAnalysis === "function") {
                 checkAndEnableAnalysis();
             }
+        } else if (result.is_duplicate) {
+            // 重複エラーが返ってきた場合は、python側で作ったメッセージをアラートで出す
+            console.warn(dataValue + "は重複しているため保存スキップ");
+            alert(result.message);
+        } else {
+            // その他のエラー
+            alert("保存に失敗しました：" + (result.message || "未知のエラー"));
         }
+        
     } catch (e) {
         console.error("保存失敗", e);
         alert("保存に失敗しました。サーバーが起動しているか確認してください。");
@@ -162,5 +173,7 @@ const downloadBtn = document.getElementById('downloadBtn');
      window.location.href = '/api/download-report';    
     });
 };
+
+
 
 }
