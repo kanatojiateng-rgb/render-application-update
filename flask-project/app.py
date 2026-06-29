@@ -56,24 +56,24 @@ def save_expense():
         expense = db.session.get(MonthlyExpense, ym_key)
 
 
-        if expense is None:
-            #新規作成
-            expense = MonthlyExpense(
-                year_month=ym_key,
-                food=data['food'],
-                transport=data['transport'],
-                hobby=data['hobby'],
-                other=data['other']
-            )
-            db.session.add(expense)
-        else:
-            # 更新
-            expense.food = data['food']
-            expense.transport = data['transport']
-            expense.hobby = data['hobby']
-            expense.other = data['other']
-        
+        if expense is not None:
+            return jsonify({
+                "success": False, 
+                "is_duplicate": True,
+                 "message": f"{date_str} 分のデータはすでに保存されています。" 
+                 }), 200
+            
+        #新規作成
+        expense = MonthlyExpense(
+            year_month=ym_key,
+            food=data['food'],
+            transport=data['transport'],
+            hobby=data['hobby'],
+            other=data['other']
+        )
+        db.session.add(expense)
         db.session.commit()
+        
 
         # --- ここから「10年制限（120件）」ロジック ---
         #1. 現在の全件数を取得
